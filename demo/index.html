@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animación hecha con código · demo</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 28px; padding: 32px 20px;
+    background: radial-gradient(900px 600px at 20% 0%, rgba(124,255,107,.10), transparent 60%), #07080B;
+    color: #F4F6F8;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  h1 { font-size: clamp(22px, 4vw, 34px); font-weight: 800; letter-spacing: -.02em; text-align: center; }
+  h1 span { color: #7CFF6B; }
+  video {
+    width: min(92vw, 420px); border-radius: 18px; background: #000;
+    box-shadow: 0 24px 60px rgba(0,0,0,.55);
+  }
+  p { max-width: 620px; color: #9AA4B2; font-size: 16px; line-height: 1.55; text-align: center; }
+  a { color: #7CFF6B; text-decoration: none; font-weight: 600; }
+  .ficha { font-size: 13px; color: #5C6673; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+  <h1>Esto no es video generado.<br><span>Es código.</span></h1>
+
+  <video src="demo.mp4" controls autoplay loop muted playsinline></video>
+
+  <p>
+    Siete segundos, 175 cuadros, cero modelos de video. La animación está escrita como HTML
+    y JavaScript; cada cuadro se calcula con una función del tiempo, se captura con el
+    navegador y se unen con ffmpeg. Editable palabra por palabra.
+  </p>
+
+  <p class="ficha">H.264 · 1080×1920 · 25 fps · 7 s · costo de render: cero</p>
+
+  <p><a href="https://github.com/krivenl2/animacion-codigo-a-mp4">Código y método en GitHub →</a></p>
+</body>
+</html>
