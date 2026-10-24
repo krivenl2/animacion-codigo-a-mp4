@@ -1,5 +1,6 @@
 cuadros/
 .perfil-chrome/
+*.zip
 *.log
 .DS_Store
 Thumbs.db
