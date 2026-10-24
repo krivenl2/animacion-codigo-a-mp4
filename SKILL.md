@@ -51,10 +51,71 @@ Las **imágenes entran al mismo motor**: son capas más. Lo que hace ver caro el
 3. **Panel de interfaz: mejor hecho en CSS que generado con IA.** Un panel generado con flux suele traer **marco o fondo claro** que se ve sucio; con `overflow:hidden` + `scale(1.09)` se recorta a medias. Con divs (barras, filas, contadores que crecen desde `t`) queda limpio y además es más “es código”.
 4. **Fotos como tarjeta**: `border-radius` + `overflow:hidden` + `object-fit:cover` + `aspect-ratio` → cualquier imagen queda prolija sin importar su marco.
 5. **Legibilidad obligatoria**: gradiente `scrim` oscuro abajo (0 → .94) y captions **fuera** de la zona del panel. Sin eso el texto cae sobre la imagen y se pierde.
-6. **Acabado cinematográfico** (3 líneas): viñeta radial + `gran` de `feTurbulence` en data-URI a `opacity:.06` con `mix-blend-mode:overlay` + `filter:brightness(1.5)` en las fotos (las imágenes generadas suelen venir muy oscuras).
+6. **Acabado cinematográfico** (3 líneas): viñeta radial + `grano` de `feTurbulence` en data-URI a `opacity:.06` con `mix-blend-mode:overlay` + `filter:brightness(1.5)` en las fotos (las imágenes generadas suelen venir muy oscuras).
 7. Las imágenes se generan gratis con `scripts/cf_imagen.py` de la skill `video-animado-remotion-ia` (flux-1-schnell, steps 4, ~173 neuronas).
 
 Plantilla lista: `anim-imagenes3.html` del repo (fondo + panel CSS + tarjeta + captions, 8 s).
+
+## Material real: capturas de la app y voz
+
+Una pieza de producto necesita **la app de verdad** en pantalla y voz. Reglas:
+
+- **Captura la ventana con `PrintWindow(hwnd, hdc, 2)`** (PW_RENDERFULLCONTENT), nunca con `CopyFromScreen`: `CopyFromScreen` copia lo que esté encima y mete al cuadro las ventanas del dueño. `PrintWindow` renderiza el contenido aunque esté tapado y no roba el foco.
+- **Busca la ventana por proceso, con espera**: `Get-Process <nombre> | ? { $_.MainWindowHandle -ne 0 }` en un bucle de hasta ~40 s (una app WPF tarda en exponer el handle). Cierra **solo lo que tú abriste** (bandera `$yaCorria`).
+- **Tapa los estados negativos en la imagen, no con CSS**: detecta el color dentro de un **ROI restringido**, difumina y oscurece (blend ≥0.94) y **verifica numéricamente** (promedio RGB y conteo de píxeles del color). Un barrido de color global se lleva los iconos rojos de la barra de herramientas.
+- **Imagen editada = nombre de archivo nuevo.** Chrome cachea por URL: reescribir el mismo PNG deja el cuadro con la versión vieja aunque el perfil sea nuevo.
+- **Los señalamientos van DENTRO del contenedor del panel**, no en el frame: así acompañan al zoom y al paneo; en coordenadas del frame se desalinean al acercar.
+- **La voz manda la duración**: genera los fragmentos, mídelos con `ffprobe` y arma el video con la suma + silencios (no al revés). Mezcla con `adelay=<ms>:all=1` + `amix=normalize=0` + `loudnorm=I=-16`.
+- **Si la nube de voz no conecta, usa la local**: `System.Speech` con la voz `es-MX` instalada (aquí *Microsoft Sabina Desktop*) escribe WAV offline y alcanza para narrar.
+- **Sólo lo que la app muestra**: los números en pantalla salen de la captura real; lo que esté en estado negativo se tapa, no se inventa un positivo.
+
+Recetas exactas (PowerShell de captura, PIL de retoque, ffmpeg de mezcla): `references/material-real-capturas-y-voz.md`.
+
+## Recursos del lenguaje visual (ampliado 24-oct-2026, dos referencias vistas cuadro a cuadro)
+
+### Estructura y continuidad
+- **HUD fijo**: los captions no cambian de lugar en todo el video y la métrica vive clavada en una esquina.
+  Cambia el fondo, no el marco. Es lo que hace que 60 escenas se sientan una sola pieza.
+- **Métrica que corre** (el recurso más fuerte de la referencia): un número en una esquina que **sube con cada
+  frase** y **cambia de unidad solo** (`0 m → 8 m → 2,4 km → 17 km → 998 km`). Se implementa con una lista de
+  pares `(tiempo, valor, unidad)` y `Math.round(valor * ease(p))`.
+- **Objeto-ancla**: el logo o una forma (un orbe, un destello) reaparece en casi todas las escenas con distinto
+  tamaño. Da continuidad sin repetir el fondo.
+- **Contador de pasos**: un `1, 2, 3…` pequeño al costado que avanza con el argumento.
+- **Reinicio final**: al cerrar, la métrica vuelve a cero → cierra el círculo narrativo.
+
+### Profundidad sin WebGL
+- **Planos apilados en perspectiva**: contenedor con `perspective:1200px`, capas con `transform-style:preserve-3d`
+  + `rotateX(55deg) rotateZ(45deg)` + `translateZ` distinto por capa; entradas escalonadas 0.12 s. Es el look
+  de "escritorio desarmado".
+- **Mockups de interfaz en perspectiva** (Excel, correo, informe): cajas HTML con `rotate`/`skewY` leve y sombra;
+  no hace falta captura real.
+- **Pilas de objetos para el tiempo**: tres tarjetas de calendario iguales, cada una con más `translateZ` y mes
+  distinto → "pasaron las semanas" sin decirlo.
+- **Match-cut**: una forma se convierte en la siguiente (carpeta → tarjeta) cambiando `border-radius`, tamaño y
+  posición en el mismo tramo de tiempo.
+
+### Interacción simulada
+- **Cursor falso**: un SVG de puntero que se mueve y "hace clic" sobre el mockup. Convierte una imagen estática
+  en una demostración.
+- **Cuadrícula que se completa**: N tarjetas pequeñas que se van marcando en secuencia (una cada 0.15 s) y un
+  check grande al final.
+- **Bucle dibujado**: una flecha circular que se traza con `stroke-dasharray` + `stroke-dashoffset`.
+
+### Datos sobre foto
+- **Foto real de fondo** con fundido lento entre fotos (una frase = una foto) y grade cálido.
+- **Dos colores**: fondo cálido y **todo lo de datos en un acento frío** (cian). Marcadores de falla, rutas y
+  gráficas usan sólo ese acento.
+- **Diagramas en SVG**: contorno de un mapa con una zona resaltada, ruta de red dibujada por tramos, barras
+  simples con etiqueta.
+- **Nota de papel**: tarjeta clara con una línea de texto y subrayado rojo encima de la foto, para la frase que
+  explica.
+- **Bokeh**: puntos de luz que aparecen y se apagan; 5-10 a la vez, nunca más.
+
+### Tipografía
+- Caption que avanza **palabra por palabra**, no por línea: cada palabra con su propio `opacity`, la clave en
+  bold y color pleno.
+- El número grande siempre con `font-variant-numeric: tabular-nums` para que no baile al cambiar.
 
 ## Entrega
 
