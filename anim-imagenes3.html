@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Animación con imágenes por capas · v3</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+  body { font-family:"Segoe UI", Inter, system-ui, sans-serif; color:#F4F6F8; }
+
+  /* ---------- CAPA 1: foto de fondo + cámara ---------- */
+  .bg { position:absolute; inset:-6%; transform-origin:50% 55%; will-change:transform; }
+  .bg img { width:100%; height:100%; object-fit:cover; display:block;
+            filter:var(--grade); }
+
+  /* ---------- CAPA 2: panel de interfaz, hecho en CSS ---------- */
+  .ui {
+    position:absolute; left:10%; width:80%; top:13%;
+    border-radius:24px; padding:34px 34px 30px;
+    background:linear-gradient(160deg, #14161A 0%, #0C0E11 100%);
+    box-shadow:0 40px 90px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.09) inset;
+    opacity:0; will-change:transform,opacity,filter;
+  }
+  .ui .top { display:flex; align-items:center; gap:12px; margin-bottom:26px; }
+  .ui .dot { width:13px; height:13px; border-radius:50%; background:#3A4048; }
+  .ui .dot.on { background:#7CFF6B; }
+  .ui .ttl { margin-left:auto; font-size:22px; color:#7A828C; letter-spacing:.08em; }
+  .ui .bars { display:flex; align-items:flex-end; gap:14px; height:210px; margin-bottom:26px; }
+  .ui .bar { width:44px; border-radius:8px 8px 0 0; background:linear-gradient(180deg,#E8EDF2,#8E97A3); }
+  .ui .rows { display:flex; flex-direction:column; gap:16px; }
+  .ui .row { display:flex; align-items:center; gap:14px; font-size:24px; color:#9AA3AE; }
+  .ui .row .k { width:16px; height:16px; border-radius:4px; background:#2A3037; }
+  .ui .row .v { margin-left:auto; color:#D7DEE6; font-weight:700; }
+
+  /* ---------- CAPA 3: tarjeta con la segunda foto ---------- */
+  .card {
+    position:absolute; left:8%; width:40%; top:47%;
+    border-radius:20px; overflow:hidden; opacity:0;
+    box-shadow:0 30px 70px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.12);
+    will-change:transform,opacity;
+  }
+  .card img { width:100%; aspect-ratio:4/5; object-fit:cover; display:block;
+              filter:brightness(1.12) contrast(1.05); }
+
+  /* ---------- capas de acabado ---------- */
+  .vignette { position:absolute; inset:0; pointer-events:none;
+    background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,0) 40%, rgba(0,0,0,.52) 74%, rgba(0,0,0,.86) 100%),
+                linear-gradient(to bottom, rgba(0,0,0,.5) 0%, rgba(0,0,0,0) 18%); }
+  .scrim { position:absolute; left:0; right:0; bottom:0; height:42%; pointer-events:none;
+    background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.7) 44%, rgba(0,0,0,.94) 100%); }
+  .grain { position:absolute; inset:-40px; pointer-events:none; opacity:.06; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>"); }
+
+  .cap { position:absolute; left:8%; right:8%; bottom:10%; opacity:0; will-change:transform,opacity; }
+  /* ================= TEMA: cambia estas variables y cambia el look entero =================
+     La animación NO se toca. Sirve para video oscuro de cine o colorido de producto.       */
+  :root {
+    --acento:      #7CFF6B;   /* color de acento (puntos, detalles) */
+    --texto:       #FFFFFF;   /* palabra clave del caption */
+    --texto-suave: #AEB6C0;   /* resto del caption */
+    --texto-tenue: #78808A;   /* subtítulo */
+    --scrim-fuerza: .94;      /* qué tan oscuro es el degradado del texto */
+    --grade: brightness(1.5) contrast(1.06) saturate(1.08);  /* corrección de las fotos */
+  }
+
+  .cap .t { font-size:60px; font-weight:800; line-height:1.28; letter-spacing:-.015em; color:var(--texto-suave); }
+  .cap .t b { color:var(--texto); }
+  .cap .s { margin-top:20px; font-size:33px; font-weight:600; color:var(--texto-tenue); }
+</style>
+</head>
+<body>
+  <div class="bg" id="bg"><img src="demo/img/fondo2.jpg" alt=""></div>
+
+  <div class="ui" id="ui">
+    <div class="top">
+      <div class="dot on"></div><div class="dot"></div><div class="dot"></div>
+      <div class="ttl">ACTIVIDAD</div>
+    </div>
+    <div class="bars">
+      <div class="bar" id="b1"></div><div class="bar" id="b2"></div><div class="bar" id="b3"></div>
+      <div class="bar" id="b4"></div><div class="bar" id="b5"></div><div class="bar" id="b6"></div>
+    </div>
+    <div class="rows">
+      <div class="row"><div class="k"></div>Modelo local<div class="v" id="v1">0</div></div>
+      <div class="row"><div class="k"></div>Imágenes<div class="v" id="v2">0</div></div>
+      <div class="row"><div class="k"></div>Video<div class="v" id="v3">0</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="card"><img src="demo/img/taza.jpg" alt=""></div>
+
+  <div class="vignette"></div>
+  <div class="scrim"></div>
+  <div class="grain" id="grain"></div>
+
+  <div class="cap" id="cap1">
+    <div class="t">Una <b>foto</b> de fondo,<br>y una cámara que se mueve.</div>
+    <div class="s">Es imagen real: la mueve el código, no un modelo de video</div>
+  </div>
+
+  <div class="cap" id="cap2">
+    <div class="t">Encima, un <b>panel</b><br>que se arma solo.</div>
+    <div class="s">Barras y números que crecen con el tiempo</div>
+  </div>
+
+  <div class="cap" id="cap3">
+    <div class="t">Y una <b>segunda foto</b><br>en su propia tarjeta.</div>
+    <div class="s">Cada capa tiene su animación, independiente</div>
+  </div>
+
+  <div class="cap" id="cap4">
+    <div class="t"><b>Texto, gráficas e imágenes:</b><br>las mismas capas.</div>
+    <div class="s">Cero modelos de video · renderizado cuadro por cuadro</div>
+  </div>
+
+<script>
+  const DUR = 8.0;
+  window.DUR = DUR;
+
+  const clamp01 = x => Math.min(1, Math.max(0, x));
+  const ease    = p => 1 - Math.pow(1 - p, 3);
+  const easeIO  = p => p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p + 2, 2) / 2;
+
+  function fx(t, a, b, fin, fout) {
+    fin = fin || 0.5; fout = fout || 0.32;
+    if (t <= a) return { op: 0, y: 34 };
+    if (t < a + fin) { const p = ease((t - a) / fin); return { op: p, y: 34 * (1 - p) }; }
+    if (t <= b) return { op: 1, y: 0 };
+    if (t < b + fout) { const p = ease((t - b) / fout); return { op: 1 - p, y: -28 * p }; }
+    return { op: 0, y: -28 };
+  }
+
+  function capa(t, id, a, b) {
+    const el = document.getElementById(id);
+    const s = fx(t, a, b);
+    el.style.opacity = s.op.toFixed(3);
+    el.style.transform = 'translateY(' + s.y.toFixed(1) + 'px)';
+    el.style.visibility = s.op > 0.002 ? 'visible' : 'hidden';
+  }
+
+  // alturas finales de las barras del panel (relativas)
+  const BARRAS = [0.55, 0.82, 0.42, 1.00, 0.68, 0.30];
+
+  window.renderAt = function (t) {
+    // cámara sobre la foto
+    const p = easeIO(clamp01(t / DUR));
+    document.getElementById('bg').style.transform =
+      'scale(' + (1.03 + 0.10 * p).toFixed(4) + ') translate(' + (-1.2 + 2.4 * p).toFixed(3) + '%,' + (-0.6 + 1.2 * p).toFixed(3) + '%)';
+
+    // panel CSS: entra y se arma
+    const ui = document.getElementById('ui');
+    const a = 2.10;
+    if (t < a) { ui.style.opacity = '0'; ui.style.visibility = 'hidden'; }
+    else {
+      const e = ease(clamp01((t - a) / 0.75));
+      ui.style.visibility = 'visible';
+      ui.style.opacity = e.toFixed(3);
+      ui.style.transform = 'translateY(' + (48 * (1 - e)).toFixed(1) + 'px) scale(' + (0.95 + 0.05 * e).toFixed(3) + ')';
+      ui.style.filter = 'blur(' + (6 * (1 - e)).toFixed(2) + 'px)';
+      // barras que crecen y números que suben
+      for (let i = 0; i < 6; i++) {
+        const pb = ease(clamp01((t - (a + 0.15 + i * 0.07)) / 0.7));
+        document.getElementById('b' + (i + 1)).style.height = (BARRAS[i] * 210 * pb).toFixed(1) + 'px';
+      }
+      const pv = ease(clamp01((t - (a + 0.3)) / 1.2));
+      document.getElementById('v1').textContent = Math.round(148 * pv);
+      document.getElementById('v2').textContent = Math.round(37 * pv);
+      document.getElementById('v3').textContent = Math.round(12 * pv);
+    }
+
+    // tarjeta con la segunda foto
+    const card = document.getElementById('card');
+    const c = 4.35;
+    if (t < c) { card.style.opacity = '0'; card.style.visibility = 'hidden'; }
+    else {
+      const e = ease(clamp01((t - c) / 0.7));
+      card.style.visibility = 'visible';
+      card.style.opacity = e.toFixed(3);
+      card.style.transform = 'translateY(' + (80 * (1 - e)).toFixed(1) + 'px) rotate(' + (-3.5 * (1 - e)).toFixed(2) + 'deg)';
+    }
+
+    // grano
+    const gi = Math.floor(t * 24);
+    document.getElementById('grain').style.transform =
+      'translate(' + ((gi * 37) % 23 - 11) + 'px,' + ((gi * 53) % 29 - 14) + 'px)';
+
+    // captions
+    capa(t, 'cap1', 0.20, 2.00);
+    capa(t, 'cap2', 2.35, 4.15);
+    capa(t, 'cap3', 4.60, 6.20);
+    capa(t, 'cap4', 6.45, 9.00);
+  };
+
+  window.renderAt(0);
+  const q = new URLSearchParams(location.search).get('t');
+  if (q !== null) window.renderAt(parseFloat(q));
+  window.listo = true;
+</script>
+</body>
+</html>

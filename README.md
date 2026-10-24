@@ -28,6 +28,24 @@ Este repositorio es esa versión libre.
 3. **ffmpeg los une** en un MP4 H.264 con `yuv420p` y `faststart`, listo para cualquier
    plataforma.
 
+## Imágenes: el mismo motor, más capas
+
+Las fotos entran como capas y se animan igual (calculadas desde `t`). Lo que hace ver
+profesional el resultado es la **composición**, no la IA:
+
+- **Placa de fondo**: `<img>` en un contenedor con `inset:-6%` + `object-fit:cover`; la cámara
+  es un `scale(1.03 → 1.13)` con deriva lateral.
+- **Paneles de interfaz: mejor en CSS que generados.** Una imagen de UI hecha con IA suele traer
+  marco o fondo claro que se ve sucio; con divs queda limpio y es más "es código".
+- **Fotos como tarjeta**: `border-radius` + `overflow:hidden` + `object-fit:cover` +
+  `aspect-ratio` → prolijas sin importar el marco que traigan.
+- **Legibilidad**: `scrim` con gradiente oscuro abajo y captions **fuera** de la zona del panel.
+- **Acabado de cine**: viñeta radial + grano (`feTurbulence` en data-URI, `opacity:.06`,
+  `mix-blend-mode:overlay`) + `filter:brightness(1.5)` en las fotos, que suelen venir oscuras.
+
+Plantilla: **`anim-imagenes3.html`** (fondo + panel CSS + tarjeta de foto + captions, 8 s) y su
+video en `demo/demo-imagenes.mp4`.
+
 ## Uso
 
 ```bash
