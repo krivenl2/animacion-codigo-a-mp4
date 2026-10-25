@@ -156,6 +156,29 @@ volumétrico, dobles 3D, composición sobre video filmado. Eso requiere modelos 
 - **Fondo neón abstracto**: gradientes radiales saturados + líneas o partículas con deriva lenta; nunca estático
   y nunca rápido.
 
+### Nube de puntos, escenario y tipografía de terminal (referencia 25-oct-2026)
+
+La pieza más técnica de las vistas: casi todo el cuadro está hecho de **puntos**.
+
+- **Campo de puntos que cambia de forma**: una reja de cientos de puntos pequeños cuyo `left/top` se
+  **interpola** entre una forma y otra (onda → esfera → silueta → plano). Es el recurso más llamativo y el más
+  barato: un arreglo de posiciones por forma + `lerp` con `ease` sobre `t`. En canvas o con `div`s posicionados.
+- **Escenario en perspectiva**: piso oscuro inclinado con borde luminoso y horizonte; todo lo demás se apoya
+  encima. Un solo `transform: perspective(900px) rotateX(62deg)` sobre el contenedor del piso da el efecto y da
+  **consistencia** entre escenas.
+- **Morphing por posiciones**: no hay transición entre escenas — la misma nube cambia de destino, así que el ojo
+  nunca ve un corte.
+- **Kicker máquina de escribir**: frase corta arriba que se escribe **palabra por palabra** con un guion final
+  (`GRÁFICA—`), como cursor de terminal.
+- **Billboards**: etiquetas y porcentajes dentro de la escena, inclinados con la misma perspectiva; no son texto
+  pegado encima.
+- **Luz volumétrica simple**: un haz = `div` con gradiente lineal + `filter:blur()`, rotado sobre el objeto y con
+  `mix-blend-mode:screen`. Un halo = círculo con gradiente radial y blur.
+- **Cámara casi fija**: sólo `scale` lento y paralaje del piso. El movimiento lo ponen los puntos, no la cámara.
+- **Fuera de alcance**: personajes u objetos 3D renderizados (el avatar, el monitor) no salen de este pipeline;
+  entran como **imagen generada** en una capa, o se sustituyen por su **silueta de puntos**, que es lo que el
+  propio video hace cuando quiere algo abstracto.
+
 ## Entrega
 
 - El **MP4** es el entregable; el HTML es la fuente y va junto, en `Desktop/<nombre>/` con `LEEME.md` que explique los pasos y cómo cambiar textos y tiempos.
