@@ -11,6 +11,14 @@ metadata:
 
 # Animación escrita como código → MP4 (sin modelos de video)
 
+## Cómo tratar un video de referencia (regla del dueño, 24-oct-2026)
+
+- De una referencia se toma **el proceso**, no los efectos: cómo se produjo la pieza (estructura, continuidad, cómo
+  se construyó cada capa, cómo se midió). Copiar el efecto concreto no aporta nada.
+- Si la referencia es de **otro género** (metraje real con VFX generativos, stop motion, cinematográfico), **decirlo**
+  y no intentar replicarla: el dueño lo corrige igual ("no es lo mismo que los anteriores").
+- De una comparación se reutiliza el **formato** (A/B, HUD fijo, métrica que corre), no los efectos.
+
 ## When to Use
 
 - Kriven pide un video animado de textos/gráficos/formas (explicador, short, promo de datos) y **no** se necesita metraje realista ni personas generadas.
@@ -133,6 +141,20 @@ Recetas exactas (PowerShell de captura, PIL de retoque, ffmpeg de mezcla): `refe
 **Fuera de alcance** (otra familia, no intentar aquí): metraje real con efectos generativos — humo
 volumétrico, dobles 3D, composición sobre video filmado. Eso requiere modelos de **video** de pago
 (Runway/Kling/Veo), y se cobra por corrida. Este pipeline llega hasta la capa gráfica.
+
+### Presentador en esquina, caption karaoke y tarjeta de producto (referencia 25-oct-2026)
+
+- **Presentador fijo (PiP de cámara)**: la cara en una esquina, siempre en el mismo lugar, sobre el B-roll que
+  cambia atrás. Es el recurso que más confianza da en video de negocio y no necesita estudio: un clip a cámara,
+  recortado en círculo o cuadrado con borde y sombra. En código: `video`/`img` con `position:absolute` fijo.
+- **Caption karaoke arriba**: 2-4 palabras a la vez, siempre en el mismo lugar, letras grandes y blancas. Es la
+  evolución del caption por bloques: se calcula el tramo de cada palabra y se encienden una por una con `t`.
+- **Tarjeta de producto/modelo con logo brillante**: fondo oscuro + icono centrado con halo + nombre abajo.
+  **Una sola plantilla repetida para todos los items** (`{logo, nombre, acento}` como datos): así cuatro
+  productos se ven como una serie y no como cuatro videos distintos.
+- **Marca de agua del tema**: el nombre del item en una esquina, pequeño, mientras cambia el fondo.
+- **Fondo neón abstracto**: gradientes radiales saturados + líneas o partículas con deriva lenta; nunca estático
+  y nunca rápido.
 
 ## Entrega
 
