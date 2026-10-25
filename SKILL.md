@@ -17,7 +17,7 @@ metadata:
 - Referencia: **Claude Motion** (Anthropic, 8-oct-2026) — `/motion` devuelve un MP4 porque **Claude escribe código** que anima el contenido; **no usa modelo de video**. Sólo en planes Team/Enterprise ✗ → esto lo replica gratis.
 - **No** usar para reels de foto + texto quemado (`ffmpeg-reel-generation`) ni para video ilustrado con personajes (`video-animado-remotion-ia`).
 
-## Pipeline probado (PECE, oct-2026) — 7 s en ~3 min
+## Pipeline probado (PECE, oct-2026) — 7 s en ~3 min; 17 s en ~6 min con render en paralelo
 
 1. **Escribir la animación en HTML** con `window.renderAt(t)` que, dado un tiempo en segundos, calcule y aplique opacidades, desplazamientos, anchos de barras y contadores.
 2. **Congelar cada cuadro desde la URL**: la página lee `?t=1.234` y llama `renderAt(t)` al cargar.
@@ -33,7 +33,12 @@ metadata:
 - **Escribir a `C:\Users\Kriven\...`**, no a `C:\Users\ThinkCentre\...`: el perfil está renombrado y el segundo da `Permission denied` al crear carpetas nuevas.
 - **`write_file` se niega a sobrescribir un HTML existente** (aunque se escribió en la misma sesión) → usar nombre nuevo (`anim2.html`) o `patch`.
 - **Programas nativos (ffprobe/ffmpeg) necesitan rutas `C:/...`**, no `/c/...` de MSYS.
-- **Costo real:** ~1.5 s por cuadro con arranque de Chrome. 25 fps × 7 s = 175 cuadros ≈ 3-4 min.
+- **Posicionar dentro de un panel: `left`/`top` en %, nunca `translate(%)`.** En un hijo con `position:absolute`, `translate(X%)` se mide contra **su propio** tamaño, no contra el contenedor: el cursor o el señalamiento se queda pegado a la esquina. Y para que además acompañe al zoom/paneo, el elemento va **dentro** del contenedor del panel, no en el frame.
+- **Nunca `-shortest` al pegar audio**: recorta el video a la duración del audio (17.48 → 16.9 s) y se come el cierre. El largo lo manda el video; el audio termina antes y deja silencio.
+- **Reescribir un PNG que ya se cargó no se ve**: Chrome cachea por URL y el cuadro sale con la versión vieja aunque el perfil sea nuevo. Cada retoque de imagen guarda con **nombre nuevo**.
+- **Un barrido de color global se lleva los iconos de la barra**: para localizar un estado negativo (rojo) hay que buscar sólo dentro del **ROI de las tarjetas**, difuminar y luego **verificar numéricamente** (promedio RGB + conteo de coincidencias = 0).
+- **Costo real por cuadro (medido):** cuadros de texto/gráficos ≈1.1-1.5 s; un cuadro con **foto + captura de app + grano ≈2.7 s**. Un video de 17.5 s (437 cuadros) tardó **19 min** con un solo proceso y **~6-7 min con tres** → usar `scripts/render-paralelo.sh` (reparte los índices entre workers y hace segunda pasada para los cuadros que falten).
+- **Cronometra 3 cuadros antes de lanzar un render largo** y da el ETA real al dueño: prometer "10 minutos" y tardar 19 se lee como abandono.
 
 ## Diseño que funciona en vertical 1080x1920
 
@@ -117,7 +122,36 @@ Recetas exactas (PowerShell de captura, PIL de retoque, ffmpeg de mezcla): `refe
   bold y color pleno.
 - El número grande siempre con `font-variant-numeric: tabular-nums` para que no baile al cambiar.
 
+### Comparativas A/B y transición de papel (referencia 24-oct-2026)
+
+El video de "qué IA edita mejor" es de **otra familia**: metraje real + efectos generativos (humo
+volumétrico, dobles 3D) hechos con **modelos de video de pago** — el propio video reporta 8.41 y 9.47 USD
+por corrida. No se intenta replicar eso aquí. **Lo que sí es reproducible con código:**
+
+- **Layout de comparación A/B**: el mismo clip dos veces (o dos versiones del mismo diseño), con
+  **encabezados fijos** arriba y un **chip de dato** abajo de cada lado (costo, tiempo, versión). Es el
+  formato más útil de todos: "antes / después", "con / sin", "así lo hace el método manual / así la consola".
+  Se implementa con dos contenedores al 50% y el mismo `renderAt(t)` aplicado a los dos.
+- **Transición de hoja doblada (page-turn)**: partir el cuadro en **N franjas verticales** y rotar cada una
+  en 3D (`rotateY` escalonado de izquierda a derecha, con `perspective`); la última franja se lleva una
+  **sombra** para dar volumen. Con video real, se hace con ffmpeg + `rotate`/`crop` por franja, pero en el
+  pipeline de código se hace con el mismo `renderAt(t)`: cada franja con su propio ángulo = `f(t, i)`.
+- **Salida en avioncito**: un SVG de hoja plegada que se achica, rota y se va volando con `translate` +
+  `rotate` + desenfoque de movimiento (no hace falta CGI; a 25 fps y con el fondo oscuro, un SVG creíble basta).
+- **Inset / picture-in-picture**: un recuadro animado dentro del cuadro, con su propio contenido y borde. Sirve
+  para "mientras yo hablo, mirá esto".
+- **Tarjeta de notificación falsa**: una caja de UI con icono que entra y "golpea" el plano.
+- **Regla de credibilidad**: en una comparación, el lado perdedor se deja en **gris** con los encabezados
+  idénticos. Se lee como juicio, no como adorno.
+
+**Límite claro**: humo volumétrico, dobleces 3D fotorrealistas y composición de metraje real requieren modelo
+**de video** (Runway/Kling/Veo) y se pagan por corrida. El pipeline de código llega hasta la capa gráfica.
+
 ## Entrega
 
 - El **MP4** es el entregable; el HTML es la fuente y va junto, en `Desktop/<nombre>/` con `LEEME.md` que explique los pasos y cómo cambiar textos y tiempos.
 - Verificar con `ffprobe` antes de entregar: h264, `yuv420p`, fps y duración.
+- **Los repos del dueño van PRIVADOS**: no tiene ningún proyecto público. Si hay que crearlo, `--private` desde el inicio — cambiar la visibilidad después falla con `HTTP 403` cuando el token no tiene permiso de administración.
+- **Lo ya especificado se ejecuta en el mismo turno.** Cuando la mejora está decidida (dijo "adelante", o la técnica ya quedó identificada), se implementa y se entrega; volver a preguntar "¿se las meto?" se lee como que no avanzaste y luego reclama el tiempo perdido.
+- **Copia el MP4 también a `Desktop/<nombre>/`**, además del repo: es de ahí de donde lo abre.
+- Recetas ejecutables: `scripts/render-paralelo.sh` (render multiproceso) y `scripts/mezclar-voz.sh` (fragmentos de voz + mux con `adelay`/`amix`/`loudnorm`).

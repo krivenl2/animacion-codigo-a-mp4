@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Monitor-CC · pieza de producto v3</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+  body { font-family:"Segoe UI", Inter, system-ui, sans-serif; color:#F4F6F8; }
+
+  /* ================= TEMA ================= */
+  :root {
+    --acento: #4FC3F7;
+    --texto: #FFFFFF;
+    --texto-suave: #B4BCC6;
+    --texto-tenue: #7A828C;
+    --grade: brightness(1.35) contrast(1.05) saturate(1.05);
+  }
+
+  /* ---------- CAPA 1: aula de fondo ---------- */
+  .bg { position:absolute; inset:-6%; transform-origin:50% 55%; will-change:transform; }
+  .bg img { width:100%; height:100%; object-fit:cover; display:block; filter:var(--grade); }
+  .bg-velo { position:absolute; inset:0; background:rgba(4,6,10,.42); }
+
+  /* ---------- CAPA 2: la consola ---------- */
+  .shot {
+    position:absolute; left:4%; width:92%; top:27%;
+    border-radius:16px; overflow:hidden; opacity:0;
+    box-shadow:0 44px 100px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.10);
+    will-change:transform,opacity,filter; transform-origin:22% 26%;
+  }
+  .shot img { width:100%; display:block; }
+
+  /* ---------- CAPA 3: señalamientos ---------- */
+  .poke { position:absolute; opacity:0; will-change:transform,opacity; }
+  .poke .punto { width:12px; height:12px; border-radius:50%; background:var(--acento);
+                 box-shadow:0 0 0 5px rgba(79,195,247,.28); }
+  .poke .linea { position:absolute; left:10px; top:5px; width:46px; height:2px;
+                 background:linear-gradient(90deg, var(--acento), rgba(79,195,247,0)); }
+  .poke .txt { position:absolute; left:58px; top:-9px; white-space:nowrap;
+               font-size:17px; font-weight:700; color:#EAF2F8;
+               background:rgba(6,9,14,.78); padding:4px 10px; border-radius:8px;
+               border:1px solid rgba(79,195,247,.35); }
+
+  /* ---------- CAPA 4: cursor simulado ---------- */
+  .cursor { position:absolute; left:0; top:0; width:38px; opacity:0; z-index:5;
+            transform-origin:2px 2px; will-change:left,top,opacity; }
+  .cursor svg { width:100%; display:block; filter:drop-shadow(0 4px 10px rgba(0,0,0,.8)); }
+  .onda { position:absolute; left:-14px; top:-14px; width:52px; height:52px; border-radius:50%;
+          border:3px solid var(--acento); opacity:0; }
+
+  /* ---------- HUD: metrica que corre ---------- */
+  .metrica { position:absolute; left:7%; bottom:8%; opacity:0; will-change:opacity; }
+  .metrica .num { font-size:92px; font-weight:800; letter-spacing:-.03em; line-height:1;
+                  font-variant-numeric:tabular-nums; color:var(--acento); }
+  .metrica .uni { margin-top:6px; font-size:26px; font-weight:700; letter-spacing:.16em;
+                  text-transform:uppercase; color:#7E8792; }
+
+  /* ---------- capas de acabado ---------- */
+  .vignette { position:absolute; inset:0; pointer-events:none;
+    background: radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 44%, rgba(0,0,0,.5) 78%, rgba(0,0,0,.85) 100%); }
+  .scrim-abajo { position:absolute; left:0; right:0; bottom:0; height:34%; pointer-events:none;
+    background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.7) 52%, rgba(0,0,0,.95) 100%); }
+  .scrim-arriba { position:absolute; left:0; right:0; top:0; height:22.5%; pointer-events:none;
+    background:linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,.62) 62%, rgba(0,0,0,.9) 100%); }
+  .grain { position:absolute; inset:-40px; pointer-events:none; opacity:.055; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>"); }
+
+  /* ---------- captions ARRIBA (HUD fijo, como la referencia) ---------- */
+  .cap { position:absolute; left:7%; right:7%; top:7.5%; opacity:0; will-change:transform,opacity; }
+  .cap .t { font-size:54px; font-weight:800; line-height:1.26; letter-spacing:-.015em; color:var(--texto-suave); }
+  .cap .t b { color:var(--texto); }
+  .cap .s { margin-top:14px; font-size:29px; font-weight:600; color:var(--texto-tenue); }
+
+  /* ---------- tarjeta final ---------- */
+  .cierre {
+    position:absolute; left:7%; right:7%; top:50%; transform:translateY(-50%);
+    padding:56px 44px; border-radius:26px; opacity:0;
+    background:linear-gradient(165deg, rgba(20,26,34,.97) 0%, rgba(9,12,17,.97) 100%);
+    box-shadow:0 40px 100px rgba(0,0,0,.9), 0 0 0 1px rgba(79,195,247,.25);
+    text-align:center; will-change:transform,opacity;
+  }
+  .cierre .marca { font-size:70px; font-weight:800; letter-spacing:-.03em; }
+  .cierre .marca span { color:var(--acento); }
+  .cierre .claim { margin-top:14px; font-size:32px; color:#9AA4AF; font-weight:600; }
+  .cierre .cta { margin-top:38px; display:inline-block; padding:20px 34px; border-radius:999px;
+                 background:var(--acento); color:#04121B; font-size:32px; font-weight:800; }
+  .cierre .nota { margin-top:26px; font-size:22px; color:#5E6670; letter-spacing:.04em; }
+</style>
+</head>
+<body>
+  <div class="bg" id="bg"><img src="demo/img/aula.jpg" alt=""></div>
+  <div class="bg-velo"></div>
+
+  <div class="shot" id="shot">
+    <img src="demo/img/consola-final4.png" alt="Consola de Monitor-CC">
+
+    <div class="poke" id="poke1" style="left:3%; top:29%;">
+      <div class="punto"></div><div class="linea"></div><div class="txt">cada equipo, en vivo</div>
+    </div>
+    <div class="poke" id="poke2" style="left:31%; top:3.5%;">
+      <div class="punto"></div><div class="linea"></div><div class="txt">capturas y órdenes</div>
+    </div>
+    <div class="poke" id="poke3" style="left:5%; top:92%;">
+      <div class="punto"></div><div class="linea"></div><div class="txt">red en tiempo real</div>
+    </div>
+
+    <div class="cursor" id="cursor">
+      <div class="onda" id="onda"></div>
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 2 L4 20 L9 15.5 L12.5 22 L15.5 20.5 L12 14.5 L18.5 14 Z"
+              fill="#FFFFFF" stroke="#0A0D12" stroke-width="1.4" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="scrim-arriba"></div>
+  <div class="scrim-abajo"></div>
+  <div class="vignette"></div>
+  <div class="grain" id="grain"></div>
+
+  <div class="cap" id="cap1">
+    <div class="t">Cierras el aula y <b>no sabes qué pasó</b><br>en cada máquina.</div>
+    <div class="s">Equipos apagados, congelados, o usados para otra cosa</div>
+  </div>
+
+  <div class="cap" id="cap2">
+    <div class="t">Tu consola te muestra<br><b>cada equipo en vivo</b>.</div>
+    <div class="s">Sin caminar al aula, sin adivinar</div>
+  </div>
+
+  <div class="cap" id="cap3">
+    <div class="t"><b>Órdenes, capturas y evidencias</b><br>desde tu escritorio.</div>
+    <div class="s">Lo que pidió el plantel, sin moverse</div>
+  </div>
+
+  <div class="metrica" id="metrica">
+    <div class="num" id="mnum">0</div>
+    <div class="uni">capturas registradas</div>
+  </div>
+
+  <div class="cierre" id="cierre">
+    <div class="marca">Monitor<span>-CC</span></div>
+    <div class="claim">Tu aula entera, en un panel</div>
+    <div class="cta">Pruébalo en una sesión</div>
+    <div class="nota">CONTROL DE AULA · SIN INSTALAR NADA EN EL SERVIDOR</div>
+  </div>
+
+<script>
+  const DUR = 17.5;
+  window.DUR = DUR;
+  const META_FINAL = 10117;      // dato real de la consola
+
+  const clamp01 = x => Math.min(1, Math.max(0, x));
+  const ease    = p => 1 - Math.pow(1 - p, 3);
+  const easeIO  = p => p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p + 2, 2) / 2;
+  const lerp    = (a, b, p) => a + (b - a) * p;
+
+  function fx(t, a, b, fin, fout) {
+    fin = fin || 0.6; fout = fout || 0.35;
+    if (t <= a) return { op: 0, y: 26 };
+    if (t < a + fin) { const p = ease((t - a) / fin); return { op: p, y: 26 * (1 - p) }; }
+    if (t <= b) return { op: 1, y: 0 };
+    if (t < b + fout) { const p = ease((t - b) / fout); return { op: 1 - p, y: -22 * p }; }
+    return { op: 0, y: -22 };
+  }
+
+  function capa(t, id, a, b) {
+    const el = document.getElementById(id);
+    const s = fx(t, a, b);
+    el.style.opacity = s.op.toFixed(3);
+    el.style.transform = 'translateY(' + s.y.toFixed(1) + 'px)';
+    el.style.visibility = s.op > 0.002 ? 'visible' : 'hidden';
+  }
+
+  window.renderAt = function (t) {
+    // ---- fondo
+    const pb = easeIO(clamp01(t / DUR));
+    document.getElementById('bg').style.transform =
+      'scale(' + (1.04 + 0.10 * pb).toFixed(4) + ') translate(' + (-1.5 + 3 * pb).toFixed(3) + '%,' + (-0.5 + 1 * pb).toFixed(3) + '%)';
+
+    // ---- consola
+    const shot = document.getElementById('shot');
+    const entra = 4.35;
+    if (t < entra) {
+      shot.style.opacity = '0'; shot.style.visibility = 'hidden';
+    } else {
+      shot.style.visibility = 'visible';
+      const e = ease(clamp01((t - entra) / 0.95));
+      let esc = lerp(0.92, 1.0, e);
+      let ox = 0, oy = 0;
+      if (t > 5.6) esc = lerp(esc, esc * 1.04, clamp01((t - 5.6) / 3.4));
+      if (t > 9.15) {
+        const z = easeIO(clamp01((t - 9.15) / 1.5));
+        esc = esc * lerp(1, 1.30, z);
+        ox = lerp(0, -4, z);
+        oy = lerp(0, -3, z);
+      }
+      if (t > 13.95) {
+        const r = ease(clamp01((t - 13.95) / 0.9));
+        esc = esc * lerp(1, 0.94, r);
+        shot.style.opacity = (1 - 0.75 * r).toFixed(3);
+      } else {
+        shot.style.opacity = e.toFixed(3);
+      }
+      shot.style.filter = 'blur(' + (8 * (1 - e)).toFixed(2) + 'px)';
+      shot.style.transform = 'translateY(' + (92 * (1 - e)).toFixed(1) + 'px) translate(' + ox + '%, ' + oy + '%) scale(' + esc.toFixed(4) + ')';
+    }
+
+    // ---- cursor simulado: viaja al boton "Capturar" y hace clic
+    const cur = document.getElementById('cursor');
+    const onda = document.getElementById('onda');
+    const c0 = 6.0, c1 = 7.0;                // viaje / clic
+    if (t < c0 - 0.4 || t > 9.6) {
+      cur.style.opacity = '0';
+      onda.style.opacity = '0';
+    } else {
+      const viaje = ease(clamp01((t - (c0 - 0.4)) / (c1 - c0 + 0.4)));
+      const x = lerp(62, 15.5, viaje);       // % dentro del panel
+      const y = lerp(78, 4.6, viaje);
+      const presion = (t > c1 && t < c1 + 0.28) ? 0.86 : 1;
+      cur.style.opacity = clamp01((t - (c0 - 0.4)) / 0.3).toFixed(3);
+      cur.style.left = x.toFixed(2) + '%';
+      cur.style.top = y.toFixed(2) + '%';
+      cur.style.transform = 'scale(' + presion.toFixed(2) + ')';
+      // onda del clic
+      const po = clamp01((t - c1) / 0.55);
+      if (t >= c1) {
+        onda.style.opacity = (1 - po).toFixed(3);
+        onda.style.transform = 'scale(' + (0.6 + 2.2 * po).toFixed(2) + ')';
+      } else {
+        onda.style.opacity = '0';
+      }
+    }
+
+    // ---- HUD: metrica que corre (de 0 a 10 117)
+    const met = document.getElementById('metrica');
+    if (t < 4.7) {
+      met.style.opacity = '0';
+    } else {
+      const vis = (t > 13.9) ? Math.max(0, 1 - (t - 13.9) / 0.6) : 1;
+      met.style.opacity = vis.toFixed(3);
+      const pm = ease(clamp01((t - 4.9) / 8.4));
+      const valor = Math.round(META_FINAL * pm);
+      document.getElementById('mnum').textContent = valor.toLocaleString('es-MX');
+    }
+
+    // ---- señalamientos
+    capa(t, 'poke1', 9.55, 13.85);
+    capa(t, 'poke2', 10.70, 13.85);
+    capa(t, 'poke3', 11.85, 13.85);
+
+    // ---- grano
+    const gi = Math.floor(t * 24);
+    document.getElementById('grain').style.transform =
+      'translate(' + ((gi * 37) % 23 - 11) + 'px,' + ((gi * 53) % 29 - 14) + 'px)';
+
+    // ---- captions y cierre
+    capa(t, 'cap1', 0.25, 4.15);
+    capa(t, 'cap2', 4.55, 8.95);
+    capa(t, 'cap3', 9.30, 13.85);
+    const ci = document.getElementById('cierre');
+    if (t < 14.05) { ci.style.opacity = '0'; ci.style.visibility = 'hidden'; }
+    else {
+      const e = ease(clamp01((t - 14.05) / 0.8));
+      ci.style.visibility = 'visible';
+      ci.style.opacity = e.toFixed(3);
+      ci.style.transform = 'translateY(' + (-50 + 4 * (1 - e)).toFixed(1) + '%) scale(' + (0.96 + 0.04 * e).toFixed(3) + ')';
+    }
+  };
+
+  window.renderAt(0);
+  const q = new URLSearchParams(location.search).get('t');
+  if (q !== null) window.renderAt(parseFloat(q));
+  window.listo = true;
+</script>
+</body>
+</html>
