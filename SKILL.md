@@ -122,30 +122,17 @@ Recetas exactas (PowerShell de captura, PIL de retoque, ffmpeg de mezcla): `refe
   bold y color pleno.
 - El número grande siempre con `font-variant-numeric: tabular-nums` para que no baile al cambiar.
 
-### Comparativas A/B y transición de papel (referencia 24-oct-2026)
+### Comparativas A/B (formato de contenido, no efecto)
 
-El video de "qué IA edita mejor" es de **otra familia**: metraje real + efectos generativos (humo
-volumétrico, dobles 3D) hechos con **modelos de video de pago** — el propio video reporta 8.41 y 9.47 USD
-por corrida. No se intenta replicar eso aquí. **Lo que sí es reproducible con código:**
+- **Layout de comparación**: la misma animación dos veces (dos contenedores al 50%, el mismo `renderAt(t)`),
+  con **encabezados fijos** y un **chip de dato** bajo cada lado (costo, tiempo, versión). Sirve para
+  "antes / después", "con / sin", "a pie / con la consola".
+- **Regla de credibilidad**: en una comparación, el lado perdedor va en **gris** con encabezados idénticos.
+  Se lee como juicio, no como adorno.
 
-- **Layout de comparación A/B**: el mismo clip dos veces (o dos versiones del mismo diseño), con
-  **encabezados fijos** arriba y un **chip de dato** abajo de cada lado (costo, tiempo, versión). Es el
-  formato más útil de todos: "antes / después", "con / sin", "así lo hace el método manual / así la consola".
-  Se implementa con dos contenedores al 50% y el mismo `renderAt(t)` aplicado a los dos.
-- **Transición de hoja doblada (page-turn)**: partir el cuadro en **N franjas verticales** y rotar cada una
-  en 3D (`rotateY` escalonado de izquierda a derecha, con `perspective`); la última franja se lleva una
-  **sombra** para dar volumen. Con video real, se hace con ffmpeg + `rotate`/`crop` por franja, pero en el
-  pipeline de código se hace con el mismo `renderAt(t)`: cada franja con su propio ángulo = `f(t, i)`.
-- **Salida en avioncito**: un SVG de hoja plegada que se achica, rota y se va volando con `translate` +
-  `rotate` + desenfoque de movimiento (no hace falta CGI; a 25 fps y con el fondo oscuro, un SVG creíble basta).
-- **Inset / picture-in-picture**: un recuadro animado dentro del cuadro, con su propio contenido y borde. Sirve
-  para "mientras yo hablo, mirá esto".
-- **Tarjeta de notificación falsa**: una caja de UI con icono que entra y "golpea" el plano.
-- **Regla de credibilidad**: en una comparación, el lado perdedor se deja en **gris** con los encabezados
-  idénticos. Se lee como juicio, no como adorno.
-
-**Límite claro**: humo volumétrico, dobleces 3D fotorrealistas y composición de metraje real requieren modelo
-**de video** (Runway/Kling/Veo) y se pagan por corrida. El pipeline de código llega hasta la capa gráfica.
+**Fuera de alcance** (otra familia, no intentar aquí): metraje real con efectos generativos — humo
+volumétrico, dobles 3D, composición sobre video filmado. Eso requiere modelos de **video** de pago
+(Runway/Kling/Veo), y se cobra por corrida. Este pipeline llega hasta la capa gráfica.
 
 ## Entrega
 
