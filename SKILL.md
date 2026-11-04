@@ -179,6 +179,45 @@ La pieza más técnica de las vistas: casi todo el cuadro está hecho de **punto
   entran como **imagen generada** en una capa, o se sustituyen por su **silueta de puntos**, que es lo que el
   propio video hace cuando quiere algo abstracto.
 
+### Trazo a mano / dibujo animado (referencia 26-oct-2026): skills públicas que ya lo resuelven
+
+El look "birome, cuadro por cuadro" es el **mismo pipeline** (canvas → cuadros → ffmpeg), pero dibujando con
+pluma cónica, temblor determinista y semillas estables. Antes de reinventarlo, leer estas skills ya revisadas:
+
+- `github.com/buildwithhanif/claude-animation-skill` — la más cercana. Película = `frame(ctx, t)` puro; `pen.mjs`
+  con `Pen`: trazo cónico, `pencil` (3 pasadas rotas), `ring`, `box` (esquinas que se pasan), `wash` (acuarela
+  que florece), `text` que se escribe solo, reveal por progreso de trazo, **semillas nombradas estables** y boil
+  opcional. Única dependencia: `@napi-rs/canvas`. Trae rigs de personaje y sonido sintetizado del mismo timeline.
+- `github.com/cyanheads/claude-config` → `skills/procedural-canvas-animation` — el contrato de motor más limpio:
+  un `index.html` autocontenido, Canvas 2D sin librerías ni fuentes, `render(t)` puro, PRNG con semilla, 7 presets
+  (risograph, papel recortado, tinta sumi, pixel, neón/CRT, flat, acuarela) y escritura a mano por stroke-progress.
+- `github.com/cth9191/animate` — el bucle de **igualar una referencia**: mide paleta, grosor, textura, movimiento y
+  ritmo de corte; dibuja 2 cuadros y los compara contra la referencia antes de producir.
+- `github.com/madhavsomani/animation-skills` (16 skills, incluye pizarra con punta de lápiz visible) y
+  `github.com/cloveric/claude-drawing-skill` (74 estilos de ilustración por código).
+
+**Regla técnica:** el trazo a mano no sale de líneas perfectas sino de **temblor con semilla fija** y grosores
+variables. Sin semilla, `scripts/render-paralelo.sh` rompe la pieza: cada trabajador dibuja distinto.
+
+### Editar, no regenerar (Canva Brush, 29-oct-2026)
+
+Canva lanzó **Brush**, su primer modelo de visión-lenguaje para diseño. Lo relevante no es el producto
+(es de pago, dentro de Canva) sino la arquitectura, que **valida este pipeline**:
+
+- **No pinta pixeles.** Lee las capas del diseño, **escribe pequeños trozos de código** para cambiarlas y
+  **revisa el resultado** antes de dar el siguiente paso. Ese ciclo —actuar, mirar, corregir— es exactamente
+  lo que hacemos con `renderAt(t)` + captura de cuadro + inspección.
+- **Aísla el cambio.** Su argumento contra los generadores de imagen: pedir una edición y que se mueva todo
+  lo demás. La regla que se desprende para nuestros briefs: decir **qué debe quedar exactamente igual**, no
+  sólo qué cambiar.
+- **La salida sigue siendo editable.** Todo queda como texto, capa y parámetro. Un MP4 plano es el final del
+  camino; un HTML con datos es el punto de partida para la siguiente versión.
+- Reportan **69 % más rápido y 46 % más barato** por edición contra su agente anterior — la economía del
+  enfoque por capas frente al enfoque generativo.
+
+Moraleja aplicable: cuando alguien pida "que la IA edite el video", la respuesta correcta es un documento
+editable que se re-renderiza, no una imagen nueva.
+
 ## Entrega
 
 - El **MP4** es el entregable; el HTML es la fuente y va junto, en `Desktop/<nombre>/` con `LEEME.md` que explique los pasos y cómo cambiar textos y tiempos.
