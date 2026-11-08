@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Vox editorial · prueba</title>
+<style>
+  :root{
+    --papel:#1d6b64;
+    --papel-oscuro:#155450;
+    --tinta:#0f1a18;
+    --sol:#f0682a;
+    --amarillo:#f2b705;
+    --crema:#f4efe2;
+    --duracion:5.0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--papel)}
+  #escena{position:relative;width:1080px;height:1920px;overflow:hidden}
+
+  /* ---------- 1. papel rasgado ---------- */
+  #papel{
+    position:absolute;inset:-4%;
+    background:
+      radial-gradient(120% 80% at 20% 10%, #2b8c83 0%, transparent 55%),
+      radial-gradient(90% 70% at 85% 75%, #124a47 0%, transparent 60%),
+      linear-gradient(160deg,#1f7a72 0%,#1a625c 45%,#124a47 100%);
+  }
+  #papel::after{
+    content:"";position:absolute;inset:0;opacity:.5;
+    background-image:repeating-linear-gradient(94deg, rgba(255,255,255,.10) 0 2px, transparent 2px 26px),
+                     repeating-linear-gradient(88deg, rgba(0,0,0,.10) 0 1px, transparent 1px 41px);
+  }
+  /* vetas de papel rotas */
+  .veta{position:absolute;height:14px;background:rgba(255,255,255,.14);filter:blur(1px);border-radius:40%}
+
+  /* ---------- 2. sol plano ---------- */
+  #sol{
+    position:absolute;width:660px;height:660px;border-radius:50%;
+    background:radial-gradient(circle at 42% 38%, #ff8a42 0%, var(--sol) 62%, #d9531c 100%);
+    left:70px;top:230px;will-change:transform;
+  }
+  #sol-aro{position:absolute;width:820px;height:820px;border-radius:50%;border:3px solid rgba(244,239,226,.16);left:20px;top:150px}
+
+  /* ---------- 3. recorte fotográfico con borde rasgado ---------- */
+  #recorte{
+    position:absolute;left:212px;top:352px;width:664px;
+    background:var(--crema);padding:15px 15px 50px 15px;
+    filter:url(#rasgado) drop-shadow(0 34px 44px rgba(0,0,0,.45));
+    will-change:transform;
+  }
+  #recorte img{display:block;width:100%;height:742px;object-fit:cover;filter:contrast(1.12) saturate(.72) sepia(.14)}
+  #recorte .pie{
+    position:absolute;left:0;right:0;bottom:12px;text-align:center;
+    font:700 20px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.2em;color:#7a6f5c;text-transform:uppercase;
+  }
+  /* 4. semitono encima de la foto */
+  #semitono{
+    position:absolute;left:227px;top:367px;width:634px;height:742px;pointer-events:none;
+    background-image:radial-gradient(circle, rgba(15,26,24,.85) 1.1px, transparent 1.4px);
+    background-size:5px 5px;mix-blend-mode:multiply;opacity:.34;
+  }
+
+  /* ---------- 5. ilustración a línea ---------- */
+  #lineas{position:absolute;inset:0;pointer-events:none}
+  #lineas svg{position:absolute;left:0;top:0;width:1080px;height:1920px}
+  .trazo{fill:none;stroke:var(--tinta);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+  .trazo-fino{fill:none;stroke:var(--tinta);stroke-width:3.5;stroke-linecap:round}
+
+  /* ---------- 6. presentador sticker ---------- */
+  #sticker{
+    position:absolute;right:22px;bottom:392px;width:248px;
+    filter:url(#rasgado) drop-shadow(0 16px 22px rgba(0,0,0,.45));
+    will-change:transform;
+  }
+  #sticker .marco{background:var(--amarillo);padding:14px;border-radius:6px}
+  #sticker svg{display:block;width:100%;height:auto}
+
+  /* ---------- 7. barra de progreso ---------- */
+  #barra{position:absolute;left:120px;right:120px;top:104px;height:6px;background:rgba(244,239,226,.28)}
+  #barra-fill{height:100%;width:0;background:var(--crema)}
+  #barra-punto{
+    position:absolute;top:-13px;left:0;width:32px;height:32px;border-radius:50%;
+    background:var(--sol);border:4px solid var(--crema);transform:translateX(-50%);
+  }
+  #kicker{
+    position:absolute;left:120px;top:140px;
+    font:700 26px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.34em;color:rgba(244,239,226,.92);
+  }
+  #folio{
+    position:absolute;right:120px;top:140px;
+    font:700 26px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.2em;color:rgba(244,239,226,.75);
+  }
+
+  /* ---------- 8. titulares palabra por palabra ---------- */
+  #titular{
+    position:absolute;left:96px;right:300px;bottom:132px;
+    font:900 84px/.98 "Helvetica Neue",Arial,sans-serif;letter-spacing:-.02em;
+    color:var(--crema);text-transform:uppercase;
+    text-shadow:0 6px 0 rgba(0,0,0,.22);
+  }
+  #titular .p{display:inline-block;opacity:0;transform:translateY(28px);margin-right:.22em}
+  #regla{position:absolute;left:96px;bottom:94px;height:8px;background:var(--sol);width:0}
+
+  /* ---------- grano ---------- */
+  #grano{
+    position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="rasgado" x="-8%" y="-8%" width="116%" height="116%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="4" seed="7" result="ruido"/>
+    <feDisplacementMap in="SourceGraphic" in2="ruido" scale="13" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div id="escena">
+  <div id="papel"></div>
+  <div class="veta" style="left:-40px;top:300px;width:640px;transform:rotate(-6deg)"></div>
+  <div class="veta" style="left:520px;top:1180px;width:700px;transform:rotate(4deg)"></div>
+  <div class="veta" style="left:-80px;top:1620px;width:900px;transform:rotate(-2deg)"></div>
+
+  <div id="sol-aro"></div>
+  <div id="sol"></div>
+
+  <div id="recorte">
+    <img src="demo/img/vox-edificio.jpg" alt="">
+    <div class="pie">ARCHIVO · CENTRO HISTÓRICO</div>
+  </div>
+  <div id="semitono"></div>
+
+  <div id="lineas">
+    <svg viewBox="0 0 1080 1920">
+      <!-- torre de perforación a la izquierda -->
+      <g id="torre" transform="translate(-88,0)">
+        <path class="trazo" d="M120 1180 L200 700 L280 1180"/>
+        <path class="trazo-fino" d="M140 1090 L260 1090 M152 990 L248 990 M164 890 L236 890 M176 790 L224 790"/>
+        <path class="trazo-fino" d="M140 1090 L248 990 M260 1090 L152 990 M152 990 L236 890 M248 990 L164 890"/>
+        <circle class="trazo" cx="200" cy="690" r="26"/>
+        <path class="trazo" d="M200 716 L200 1180"/>
+      </g>
+      <!-- columnas con humo a la derecha -->
+      <g id="columnas" transform="translate(0,-330)">
+        <rect class="trazo" x="880" y="960" width="90" height="220"/>
+        <path class="trazo" d="M880 960 L925 900 L970 960"/>
+        <rect class="trazo-fino" x="900" y="1010" width="50" height="60"/>
+        <path class="trazo-fino" d="M905 1180 L905 1240 M955 1180 L955 1240"/>
+      </g>
+      <!-- linea de suelo -->
+      <path class="trazo" d="M60 1250 L1020 1250"/>
+    </svg>
+  </div>
+
+  <div id="sticker">
+    <div class="marco">
+      <svg viewBox="0 0 200 220">
+        <circle cx="100" cy="76" r="46" fill="#e8b48a"/>
+        <path d="M54 76a46 46 0 0 1 92 0v-8a46 46 0 0 0-92 0z" fill="#2e2a26"/>
+        <path d="M58 62a44 44 0 0 1 84 0 46 46 0 0 0-84 0z" fill="#2e2a26"/>
+        <path d="M40 220c0-38 27-62 60-62s60 24 60 62z" fill="#1f3f6b"/>
+        <path d="M74 96q26 14 52 0" stroke="#8a5a3a" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="84" cy="72" r="4.5" fill="#1b1b1b"/><circle cx="116" cy="72" r="4.5" fill="#1b1b1b"/>
+      </svg>
+    </div>
+  </div>
+
+  <div id="barra"><div id="barra-fill"></div><div id="barra-punto"></div></div>
+  <div id="kicker">MONITOR · AULA 03</div>
+  <div id="folio">01 / 01</div>
+
+  <div id="titular"></div>
+  <div id="regla"></div>
+  <div id="grano"></div>
+</div>
+
+<script>
+const DUR = 5.0;
+const FRASES = [
+  {texto:"EN UN CENTRO DE CÓMPUTO", t0:0.15, t1:1.55},
+  {texto:"NADIE SABE QUÉ PASÓ",     t0:1.75, t1:3.15},
+  {texto:"HASTA QUE ALGUIEN MIRA",  t0:3.35, t1:5.00}
+];
+const esc = document.getElementById('escena');
+const titular = document.getElementById('titular');
+const regla = document.getElementById('regla');
+const sol = document.getElementById('sol');
+const recorte = document.getElementById('recorte');
+const sticker = document.getElementById('sticker');
+const fill = document.getElementById('barra-fill');
+const punto = document.getElementById('barra-punto');
+const torre = document.getElementById('torre');
+
+// pre-armar palabras
+const palabras = [];
+FRASES.forEach((f, fi) => {
+  f.texto.split(" ").forEach((w, wi) => {
+    const s = document.createElement('span');
+    s.className = 'p';
+    s.textContent = w;
+    titular.appendChild(s);
+    palabras.push({el:s, fi, wi, total:f.texto.split(" ").length, t0:f.t0, t1:f.t1});
+  });
+  if (fi < FRASES.length - 1) titular.appendChild(document.createTextNode(" "));
+});
+
+const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
+const ease = t => t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+
+function renderAt(t){
+  t = clamp(t, 0, DUR);
+  const p = t / DUR;                       // 0..1 global
+
+  // barra de progreso
+  fill.style.width = (p*100).toFixed(3) + '%';
+  punto.style.left  = (p*100).toFixed(3) + '%';
+
+  // paralaje de capas a distinta velocidad
+  recorte.style.transform = `translateY(${(-46*p).toFixed(2)}px) scale(${(1+0.03*p).toFixed(4)}) rotate(${(-1.1+0.5*p).toFixed(3)}deg)`;
+  sol.style.transform     = `translateY(${(28*p).toFixed(2)}px)`;
+  sticker.style.transform = `translateY(${(18*p).toFixed(2)}px) rotate(${(1.6-1.2*p).toFixed(3)}deg)`;
+  torre.style.transform   = `translate(${(-10*p).toFixed(2)}px, 0)`;
+
+  // palabras: entrada escalonada, salida al cambiar de frase
+  palabras.forEach(w => {
+    const dur = (w.t1 - w.t0);
+    const paso = dur / (w.total + 1.2);
+    const ti = w.t0 + w.wi * paso;
+    const tf = ti + paso * 1.35;
+    const entra = clamp((t - ti) / (tf - ti), 0, 1);
+    const sale  = clamp((t - w.t1) / 0.28, 0, 1);
+    const o = ease(entra) * (1 - sale);
+    w.el.style.opacity = o.toFixed(3);
+    w.el.style.transform = `translateY(${((1-ease(entra))*28 - sale*10).toFixed(2)}px)`;
+  });
+
+  // regla de acento bajo el titular
+  regla.style.width = (Math.min(1, t/1.1) * 320).toFixed(1) + 'px';
+}
+
+window.renderAt = renderAt;
+
+const params = new URLSearchParams(location.search);
+if (params.has('t')) { renderAt(parseFloat(params.get('t')) || 0); }
+else {
+  const t0 = performance.now();
+  (function loop(now){ renderAt(((now-t0)/1000) % DUR); requestAnimationFrame(loop); })(t0);
+}
+</script>
+</body>
+</html>
