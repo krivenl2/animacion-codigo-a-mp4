@@ -218,6 +218,31 @@ Canva lanzó **Brush**, su primer modelo de visión-lenguaje para diseño. Lo re
 Moraleja aplicable: cuando alguien pida "que la IA edite el video", la respuesta correcta es un documento
 editable que se re-renderiza, no una imagen nueva.
 
+### Estilo "Vox" editorial mixto (referencia 07-nov-2026)
+
+El look de los explainers editoriales (Vox, Johnny Harris) no es video generado: es **collage sobre papel**.
+Analizado cuadro por cuadro de una pieza real, la receta de capas es:
+
+1. **Fondo de papel rasgado**, no color plano: cian-verdoso o beige, con vetas y textura de imprenta.
+2. **Recortes fotográficos** (arquitectura, objetos) con **borde blanco rasgado**, apilados en 2-3 planos de
+   profundidad y con sombra suave. El borde irregular es lo que vende el efecto \"recortado a tijera\".
+3. **Semitono (halftone)** sobre las fotos: puntos de imprenta que las integran al papel.
+4. **Formas planas de acento**: un sol circular naranja/amarillo, bandas de color a sangre.
+5. **Ilustración a línea negra** encima (torres, engranajes, columnas con humo) — tinta sobre el collage.
+6. **Presentador recortado tipo sticker**: contorno blanco, sobre panel amarillo plano; es el recurso que
+   convierte un explainer en pieza con cara humana.
+7. **Tipografía condensada en mayúsculas** + kicker chico; el texto entra palabra por palabra abajo.
+8. **Barra de progreso** arriba con punto de acento que avanza: da sensación de documental.
+
+**Cómo se hace en código (gratis, sin GPU):** borde rasgado = filtro SVG `feTurbulence` + `feDisplacementMap`
+sobre la máscara de la imagen (o un PNG de máscara); halftone = `repeating-radial-gradient` o patrón SVG;
+grano = el `feTurbulence` al 6 % que ya usamos; recortes = `img` con `filter: drop-shadow` + `rotate` leve.
+Cada capa con paralaje distinto (`translate` a distinta velocidad) da la profundidad sin cámara 3D.
+
+**La variante de pago:** Higgsfield tiene este preset como `/vox-mixed-media` (\"Editorial Motion Graphics\")
+vía MCP — ver sección siguiente. Renderiza clips con **Seedance 2.0** y cuesta créditos; el resultado es
+video generado, no capas editables.
+
 ## Entrega
 
 - El **MP4** es el entregable; el HTML es la fuente y va junto, en `Desktop/<nombre>/` con `LEEME.md` que explique los pasos y cómo cambiar textos y tiempos.
