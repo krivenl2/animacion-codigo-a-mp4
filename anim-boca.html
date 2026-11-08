@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Boca y ojos animados · noticiero</title>
+<style>
+  :root{
+    --piel:#e8b48a; --piel-sombra:#d99b6e;
+    --pelo:#2b2118; --tinta:#1b1410;
+    --camisa:#243b55; --camisa-sombra:#1a2c40;
+    --fondo:#1a2233; --fondo2:#0f1622;
+    --acento:#f2b705; --rojo:#c0392b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--fondo2)}
+  #escena{position:relative;width:1080px;height:1920px;overflow:hidden}
+
+  /* ---------- FONDO A: estudio con pantalla ---------- */
+  #fondoA{position:absolute;inset:0;background:
+      radial-gradient(120% 90% at 50% 0%, #23304a 0%, #16202f 55%, #0d141d 100%);
+      will-change:transform}
+  #pantalla{
+    position:absolute;left:150px;top:120px;width:780px;height:360px;
+    background:linear-gradient(150deg,#243b55,#12203a);
+    border:10px solid #0a1018;border-radius:10px;
+    box-shadow:0 0 60px rgba(40,120,200,.35), inset 0 0 80px rgba(0,80,160,.35);
+    display:flex;align-items:center;justify-content:center;
+  }
+  #pantalla .logo{
+    font:900 74px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:-.02em;
+    color:#eaf2ff;text-align:center;text-transform:uppercase;
+  }
+  #pantalla .logo span{color:var(--acento);display:block;font-size:52px;letter-spacing:.18em;margin-top:10px}
+  #piso{position:absolute;left:0;right:0;bottom:0;height:640px;background:linear-gradient(180deg,#101a26,#070c12)}
+  #piso::before{content:"";position:absolute;inset:0;background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 2px, transparent 2px 120px)}
+
+  /* ---------- FONDO B: barra nocturna ---------- */
+  #fondoB{position:absolute;inset:0;opacity:0;background:
+      radial-gradient(90% 70% at 50% 30%, #2b1f2e 0%, #14101a 60%, #0a070d 100%);
+      will-change:opacity,transform}
+  #fondoB .lineas{position:absolute;inset:0;background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.045) 0 1px, transparent 1px 26px)}
+  #fondoB .titulo{
+    position:absolute;left:60px;top:520px;
+    font:900 92px/1.02 "Helvetica Neue",Arial,sans-serif;color:#f4efe2;text-transform:uppercase;letter-spacing:-.02em
+  }
+  #fondoB .titulo em{color:var(--rojo);font-style:normal}
+
+  /* ---------- PERSONAJE ---------- */
+  #personaje{
+    position:absolute;left:50%;top:246px;width:1010px;margin-left:-505px;
+    transform-origin:50% 42%;will-change:transform;
+  }
+  #personaje svg{display:block;width:100%;height:auto}
+
+  /* ---------- lower third ---------- */
+  #chiron{
+    position:absolute;left:0;bottom:250px;display:flex;align-items:stretch;
+    transform:translateX(-110%);will-change:transform;
+  }
+  #chiron .barra{width:18px;background:var(--rojo)}
+  #chiron .texto{background:linear-gradient(90deg,rgba(10,16,24,.95),rgba(10,16,24,.78));padding:26px 54px 26px 34px}
+  #chiron .nombre{font:900 46px/1 "Helvetica Neue",Arial,sans-serif;color:#fff;letter-spacing:.02em}
+  #chiron .cargo{font:700 26px/1 "Helvetica Neue",Arial,sans-serif;color:var(--acento);letter-spacing:.22em;margin-top:10px}
+
+  #grano{
+    position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+  }
+  #viñeta{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(75% 60% at 50% 42%, transparent 40%, rgba(0,0,0,.55) 100%)}
+</style>
+</head>
+<body>
+<div id="escena">
+  <div id="fondoA">
+    <div id="pantalla"><div class="logo">Culichi<br>Incómodo<span>Noticiero</span></div></div>
+    <div id="piso"></div>
+  </div>
+
+  <div id="fondoB">
+    <div class="lineas"></div>
+  </div>
+
+  <div id="personaje">
+    <svg viewBox="0 0 600 700">
+      <defs>
+        <clipPath id="clip-ojo-izq"><ellipse cx="246" cy="322" rx="46" ry="40"/></clipPath>
+        <clipPath id="clip-ojo-der"><ellipse cx="354" cy="322" rx="46" ry="40"/></clipPath>
+      </defs>
+      <!-- hombros / saco -->
+      <path d="M70 700 C80 560 160 500 300 500 C440 500 520 560 530 700 Z" fill="var(--camisa)" stroke="var(--tinta)" stroke-width="9" stroke-linejoin="round"/>
+      <path d="M232 508 L300 610 L368 508" fill="var(--camisa-sombra)" stroke="var(--tinta)" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M282 500 L300 610 L318 500 Z" fill="#f4efe2" stroke="var(--tinta)" stroke-width="7"/>
+      <!-- cuello -->
+      <path d="M258 400 L258 512 Q300 540 342 512 L342 400 Z" fill="var(--piel-sombra)" stroke="var(--tinta)" stroke-width="9"/>
+      <!-- orejas -->
+      <ellipse cx="168" cy="330" rx="26" ry="38" fill="var(--piel)" stroke="var(--tinta)" stroke-width="8"/>
+      <ellipse cx="432" cy="330" rx="26" ry="38" fill="var(--piel)" stroke="var(--tinta)" stroke-width="8"/>
+      <!-- cabeza -->
+      <path d="M300 118 C412 118 448 210 448 310 C448 420 392 486 300 486 C208 486 152 420 152 310 C152 210 188 118 300 118 Z"
+            fill="var(--piel)" stroke="var(--tinta)" stroke-width="10"/>
+      <!-- pelo -->
+      <path d="M300 112 C404 112 452 196 452 268 C452 268 430 214 396 206 C360 198 300 214 250 200 C206 188 176 214 160 260 C154 214 196 112 300 112 Z"
+            fill="var(--pelo)" stroke="var(--tinta)" stroke-width="9" stroke-linejoin="round"/>
+      <path d="M160 262 C150 300 156 330 168 352 C160 316 164 286 176 264 Z" fill="var(--pelo)"/>
+      <path d="M440 262 C450 300 444 330 432 352 C440 316 436 286 424 264 Z" fill="var(--pelo)"/>
+
+      <!-- cejas -->
+      <path id="ceja-izq" d="M206 274 Q244 254 284 272" fill="none" stroke="var(--tinta)" stroke-width="15" stroke-linecap="round"/>
+      <path id="ceja-der" d="M316 272 Q356 254 394 274" fill="none" stroke="var(--tinta)" stroke-width="15" stroke-linecap="round"/>
+
+      <!-- ojos: cuenca, esclerotica, pupila y parpado -->
+      <g id="ojo-izq">
+        <ellipse cx="246" cy="322" rx="46" ry="40" fill="#fffaf2" stroke="var(--tinta)" stroke-width="8"/>
+        <ellipse cx="248" cy="324" rx="19" ry="21" fill="#20150f"/>
+        <circle cx="254" cy="316" r="6" fill="#fff"/>
+        <rect id="parpado-izq" x="198" y="278" width="96" height="4" fill="var(--piel)" clip-path="url(#clip-ojo-izq)" stroke="var(--tinta)" stroke-width="3"/>
+      </g>
+      <g id="ojo-der">
+        <ellipse cx="354" cy="322" rx="46" ry="40" fill="#fffaf2" stroke="var(--tinta)" stroke-width="8"/>
+        <ellipse cx="352" cy="324" rx="19" ry="21" fill="#20150f"/>
+        <circle cx="358" cy="316" r="6" fill="#fff"/>
+        <rect id="parpado-der" x="306" y="278" width="96" height="4" fill="var(--piel)" clip-path="url(#clip-ojo-der)" stroke="var(--tinta)" stroke-width="3"/>
+      </g>
+
+      <!-- nariz -->
+      <path d="M300 340 Q308 372 300 388 Q292 396 282 390" fill="none" stroke="var(--tinta)" stroke-width="8" stroke-linecap="round"/>
+
+      <!-- BOCA: el grupo entero se transforma -->
+      <g id="boca-g">
+        <path id="boca-fondo" d="" fill="#3a1c20" stroke="var(--tinta)" stroke-width="8" stroke-linejoin="round"/>
+        <path id="boca-dientes" d="" fill="#fffaf2"/>
+        <ellipse id="boca-lengua" cx="300" cy="452" rx="0" ry="0" fill="#a83a3a"/>
+        <path id="boca-linea" d="" fill="none" stroke="var(--tinta)" stroke-width="9" stroke-linecap="round"/>
+      </g>
+      <!-- barbilla -->
+      <path d="M266 470 Q300 486 334 470" fill="none" stroke="var(--piel-sombra)" stroke-width="7" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div id="chiron">
+    <div class="barra"></div>
+    <div class="texto">
+      <div class="nombre" id="chiron-nombre">DON CHUY</div>
+      <div class="cargo" id="chiron-cargo">NOTICIERO CULICHI INCÓMODO</div>
+    </div>
+  </div>
+
+  <div id="viñeta"></div>
+  <div id="grano"></div>
+</div>
+
+<script src="voz-data.js"></script>
+<script>
+const DUR = (window.VOZ && window.VOZ.duracion) ? window.VOZ.duracion : 7.33;
+const V = window.VOZ || {abertura:[], ancho:[], fps:25};
+
+const bocaFondo = document.getElementById('boca-fondo');
+const bocaDientes = document.getElementById('boca-dientes');
+const bocaLengua = document.getElementById('boca-lengua');
+const bocaLinea = document.getElementById('boca-linea');
+const parpadoIzq = document.getElementById('parpado-izq');
+const parpadoDer = document.getElementById('parpado-der');
+const cejaIzq = document.getElementById('ceja-izq');
+const cejaDer = document.getElementById('ceja-der');
+const personaje = document.getElementById('personaje');
+const fondoA = document.getElementById('fondoA');
+const fondoB = document.getElementById('fondoB');
+const chiron = document.getElementById('chiron');
+
+const CY = 440;           // centro vertical de la boca
+const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
+
+// --- ritmo de parpadeo determinista (en segundos) ---
+const PARPADEOS = [1.1, 2.6, 3.9, 5.2, 6.4, 7.1];
+function parpadeoEn(t){
+  for (const p of PARPADEOS){
+    const d = t - p;
+    if (d > -0.02 && d < 0.20) return clamp(d < 0.06 ? d/0.06 : 1 - (d-0.06)/0.14, 0, 1);
+  }
+  return 0;
+}
+
+// --- muestra la curva de voz en el tiempo t ---
+function muestra(t){
+  const i = clamp(Math.floor(t * 25), 0, Math.max(0, V.abertura.length - 1));
+  const o = V.abertura.length ? V.abertura[i] : 0;
+  const w = V.ancho.length ? V.ancho[i] : 0.5;
+  return {o, w};
+}
+
+// --- dibuja la boca segun apertura (0..1) y ancho (0..1) ---
+function dibujaBoca(o, w, t){
+  // ruido de dibujo a mano, deterministico por tiempo
+  const j = (Math.sin(t * 91.7) * 0.9) + (Math.sin(t * 37.3) * 0.6);
+
+  if (o < 0.10){
+    // cerrada: una linea con curva
+    bocaFondo.setAttribute('d',''); bocaDientes.setAttribute('d','');
+    bocaLengua.setAttribute('rx', 0); bocaLengua.setAttribute('ry', 0);
+    const anchoC = 52 + w * 16;
+    const curva = 9 + o * 40 + j;
+    bocaLinea.setAttribute('d', `M ${300-anchoC} ${CY} Q 300 ${CY+curva} ${300+anchoC} ${CY}`);
+    return;
+  }
+  bocaLinea.setAttribute('d','');
+
+  // abierta: ancho se cierra a medida que abre (proporcion de la boca real)
+  const ancho = (66 - o * 26) * (0.82 + w * 0.36);
+  const alto  = 8 + o * 46;
+  const x0 = 300 - ancho, x1 = 300 + ancho;
+  const ySup = CY - 4 - o * 6;
+  const yInf = CY + alto + j;
+
+  const d = [
+    `M ${x0} ${CY}`,
+    `Q 300 ${ySup - 8} ${x1} ${CY}`,
+    `Q ${300 + ancho*0.72} ${yInf} 300 ${yInf}`,
+    `Q ${300 - ancho*0.72} ${yInf} ${x0} ${CY}`,
+    'Z'
+  ].join(' ');
+  bocaFondo.setAttribute('d', d);
+
+  // dientes arriba cuando abre bastante
+  if (o > 0.42){
+    const dy = ySup + 4;
+    const dx = ancho * 0.62;
+    bocaDientes.setAttribute('d',
+      `M ${300-dx} ${CY-2} Q 300 ${dy-4} ${300+dx} ${CY-2} L ${300+dx} ${dy+7} Q 300 ${dy+14} ${300-dx} ${dy+7} Z`);
+  } else bocaDientes.setAttribute('d','');
+
+  // lengua al fondo cuando abre mucho
+  if (o > 0.66){
+    bocaLengua.setAttribute('rx', ancho * 0.55);
+    bocaLengua.setAttribute('ry', alto * 0.26);
+    bocaLengua.setAttribute('cy', yInf - alto * 0.18);
+  } else { bocaLengua.setAttribute('rx', 0); bocaLengua.setAttribute('ry', 0); }
+}
+
+function renderAt(t){
+  t = clamp(t, 0, DUR);
+  const p = t / DUR;
+  const {o, w} = muestra(t);
+
+  // --- CORTE DE CÁMARA a los 4.2 s: cambia fondo, encuadre y personaje ---
+  const corte = 4.2;
+  const esB = t >= corte;
+
+  fondoA.style.opacity = esB ? '0' : '1';
+  fondoB.style.opacity = esB ? '1' : '0';
+
+  if (!esB){
+    const k = t / corte;
+    fondoA.style.transform = `scale(${1 + 0.06*k})`;
+    personaje.style.transform = `translateY(${(6*k).toFixed(2)}px) scale(${1 + 0.11*k})`;
+    personaje.style.left = '50%';
+  } else {
+    const k = (t - corte) / (DUR - corte);
+    fondoB.style.transform = `scale(${1.05 - 0.05*k})`;
+    personaje.style.transform = `translateY(${(10*k).toFixed(2)}px) scale(${0.93 + 0.04*k}) rotate(${(-1.2 + 1.2*k).toFixed(2)}deg)`;
+    personaje.style.left = '45%';
+  }
+
+  // --- boca y ojos ---
+  dibujaBoca(o, w, t);
+
+  const parp = parpadeoEn(t);
+  const alturaParpado = 4 + parp * 74;
+  [parpadoIzq, parpadoDer].forEach(pd => {
+    pd.setAttribute('height', alturaParpado.toFixed(1));
+  });
+
+  // cejas suben con el enfasis (derivada de la apertura)
+  const prev = muestra(Math.max(0, t - 0.12)).o;
+  const enfasis = clamp((o - prev) * 1.6, -1, 1);
+  cejaIzq.style.transform = `translateY(${(-enfasis * 7).toFixed(2)}px)`;
+  cejaDer.style.transform = `translateY(${(-enfasis * 7).toFixed(2)}px)`;
+
+  // cabeceo leve con el habla
+  const bob = Math.sin(t * 7.4) * o * 3.4;
+  personaje.style.marginTop = `${(-bob).toFixed(2)}px`;
+
+  // --- chiron entra y sale ---
+  const entra = clamp((t - 0.5) / 0.5, 0, 1);
+  chiron.style.transform = `translateX(${(-110 + 110*entra).toFixed(2)}%)`;
+}
+
+window.renderAt = renderAt;
+
+const params = new URLSearchParams(location.search);
+if (params.has('t')) renderAt(parseFloat(params.get('t')) || 0);
+else {
+  const t0 = performance.now();
+  (function loop(now){ renderAt(((now - t0)/1000) % DUR); requestAnimationFrame(loop); })(t0);
+}
+</script>
+</body>
+</html>
