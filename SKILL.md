@@ -40,12 +40,20 @@ metadata:
 - **El perfil de Chrome de Hermes está bloqueado si el dueño tiene Chrome abierto** → usar `--user-data-dir` en carpeta aparte. Nunca cerrar su navegador.
 - **Escribir a `C:\Users\Kriven\...`**, no a `C:\Users\ThinkCentre\...`: el perfil está renombrado y el segundo da `Permission denied` al crear carpetas nuevas.
 - **`write_file` se niega a sobrescribir un HTML existente** (aunque se escribió en la misma sesión) → usar nombre nuevo (`anim2.html`) o `patch`.
-- **Programas nativos (ffprobe/ffmpeg) necesitan rutas `C:/...`**, no `/c/...` de MSYS.
+- **Programas nativos (ffprobe/ffmpeg/chrome) necesitan rutas `C:/...`**, no `/c/...` de MSYS. Con ruta
+  **relativa** en `--screenshot=` Chrome headless **no escribe nada y no da error** (sale con 0): los cuadros
+  simplemente no existen. Después del primer cuadro, comprobar que el PNG apareció antes de seguir.
+- **`python` a secas está roto en este shell** (trampolín `uv`: "entity not found"): usar `C:/Python314/python.exe`.
+  Para editar el HTML del proyecto, preferir la herramienta `patch` en vez de heredocs.
 - **Posicionar dentro de un panel: `left`/`top` en %, nunca `translate(%)`.** En un hijo con `position:absolute`, `translate(X%)` se mide contra **su propio** tamaño, no contra el contenedor: el cursor o el señalamiento se queda pegado a la esquina. Y para que además acompañe al zoom/paneo, el elemento va **dentro** del contenedor del panel, no en el frame.
 - **Nunca `-shortest` al pegar audio**: recorta el video a la duración del audio (17.48 → 16.9 s) y se come el cierre. El largo lo manda el video; el audio termina antes y deja silencio.
 - **Reescribir un PNG que ya se cargó no se ve**: Chrome cachea por URL y el cuadro sale con la versión vieja aunque el perfil sea nuevo. Cada retoque de imagen guarda con **nombre nuevo**.
 - **Un barrido de color global se lleva los iconos de la barra**: para localizar un estado negativo (rojo) hay que buscar sólo dentro del **ROI de las tarjetas**, difuminar y luego **verificar numéricamente** (promedio RGB + conteo de coincidencias = 0).
 - **Costo real por cuadro (medido):** cuadros de texto/gráficos ≈1.1-1.5 s; un cuadro con **foto + captura de app + grano ≈2.7 s**. Un video de 17.5 s (437 cuadros) tardó **19 min** con un solo proceso y **~6-7 min con tres** → usar `scripts/render-paralelo.sh` (reparte los índices entre workers y hace segunda pasada para los cuadros que falten).
+- **Titular palabra por palabra: cada palabra es un `span` y necesita `margin-right`.** Los `inline-block`
+  sin espacios entre etiquetas se pegan y el texto se lee "SABEQUÉ" en vez de "SABE QUÉ".
+- **Al borrar una capa, borrar también su referencia en `renderAt()`.** `getElementById` devuelve `null`, la
+  primera línea del render lanza excepción y los N cuadros salen idénticos o en blanco, sin mensaje de error.
 - **Cronometra 3 cuadros antes de lanzar un render largo** y da el ETA real al dueño: prometer "10 minutos" y tardar 19 se lee como abandono.
 
 ## Diseño que funciona en vertical 1080x1920
@@ -65,7 +73,7 @@ Las **imágenes entran al mismo motor**: son capas más. Lo que hace ver caro el
 4. **Fotos como tarjeta**: `border-radius` + `overflow:hidden` + `object-fit:cover` + `aspect-ratio` → cualquier imagen queda prolija sin importar su marco.
 5. **Legibilidad obligatoria**: gradiente `scrim` oscuro abajo (0 → .94) y captions **fuera** de la zona del panel. Sin eso el texto cae sobre la imagen y se pierde.
 6. **Acabado cinematográfico** (3 líneas): viñeta radial + `grano` de `feTurbulence` en data-URI a `opacity:.06` con `mix-blend-mode:overlay` + `filter:brightness(1.5)` en las fotos (las imágenes generadas suelen venir muy oscuras).
-7. Las imágenes se generan gratis con `scripts/cf_imagen.py` de la skill `video-animado-remotion-ia` (flux-1-schnell, steps 4, ~173 neuronas).
+7. Las imágenes se generan gratis con `scripts/cf_imagen.py` de la skill `video-animado-remotion-ia` (flux-1-schnell, steps 4, ~173 neuronas). Si se usa un servicio por URL (Pollinations y similares), **verificar el archivo antes de animarlo**: una respuesta de ~300 bytes es una página de error, no una imagen — comprobar tamaño y `file`.
 
 Plantilla lista: `anim-imagenes3.html` del repo (fondo + panel CSS + tarjeta + captions, 8 s).
 
@@ -239,9 +247,62 @@ sobre la máscara de la imagen (o un PNG de máscara); halftone = `repeating-rad
 grano = el `feTurbulence` al 6 % que ya usamos; recortes = `img` con `filter: drop-shadow` + `rotate` leve.
 Cada capa con paralaje distinto (`translate` a distinta velocidad) da la profundidad sin cámara 3D.
 
-**La variante de pago:** Higgsfield tiene este preset como `/vox-mixed-media` (\"Editorial Motion Graphics\")
-vía MCP — ver sección siguiente. Renderiza clips con **Seedance 2.0** y cuesta créditos; el resultado es
-video generado, no capas editables.
+**La variante de pago:** Higgsfield tiene este preset como `/vox-mixed-media` ("Editorial Motion Graphics")
+vía MCP (conector `mcp.higgsfield.ai/mcp`, que su documentación lista como compatible con Claude, Hermes y
+OpenClaw). Renderiza clips con **Seedance 2.0** y cuesta créditos por corrida. El dueño no paga herramientas:
+la pieza se hace con código y la vía de pago sólo se documenta como referencia.
+
+Implementado en `anim-vox.html` del repo: 5 s / 125 cuadros, con la foto sacada de un generador gratuito.
+
+## Gratis primero (regla del dueño)
+
+- **El dueño no paga herramientas.** Cuando una referencia termina en un servicio de pago (MCP con créditos,
+  suscripción, generador por corrida), la respuesta correcta es **buscar el equivalente gratuito o hacerlo aquí
+  con código**, no proponer la compra. Su frase que manda: *"tú debes buscar las herramientas para hacerlo
+  gratuitamente o bien si nosotros podemos hacerlo aquí mejor"*.
+- Se documenta la vía de pago como referencia (qué hace, cuánto cuesta) y se construye la gratuita. Sólo se
+  menciona el gasto si él pregunta por esa herramienta en concreto.
+- Lo que necesita GPU no se compra para probar una técnica: se anota como "pendiente hasta que haya tarjeta".
+
+## Personaje que habla (boca y ojos por voz)
+
+Cuando la pieza lleva **personaje con cara** (noticiero, explicador con presentador dibujado): el cuerpo va
+quieto, la cámara se mueve, y **sólo la boca y los ojos se animan**. La boca **no se mueve al azar ni con
+formas fijas**: se mueve con la curva de la voz.
+
+1. **Voz en un solo WAV continuo** (los fragmentos no sirven para lip-sync).
+2. **Analizar el WAV a la tasa del render**: RMS → apertura de mandíbula, cruces por cero → ancho de labios;
+   se emite un `voz-data.js` (`window.VOZ`) incluido con `<script src>` (evita CORS en `file://`).
+3. **Boca = un path SVG generado de dos números** (apertura, ancho), con dientes y lengua por umbral.
+4. **Párpado con `clip-path` a la elipse del ojo** y parpadeo por lista fija de tiempos.
+5. Probar 4 cuadros (silencio / sílaba abierta / parpadeo / segundo encuadre) antes del render completo.
+
+Procedimiento completo, fórmulas y trampas: `references/boca-y-ojos-por-voz.md`. Implementado en
+`anim-boca.html` + `voz-data.js` del repo.
+
+**Límite declarado:** lo probado es un personaje dibujado en código. Sobre caricaturas raster (PNG) hay que
+retocar la boca en el arte o redibujar el elenco; no presentarlo como resuelto sin probarlo en un PNG real.
+
+### Boca y ojos animados por voz (construido 08-nov-2026)
+
+Para personajes que hablan sin animar el cuerpo: la boca **no se mueve al azar, la mueve la voz**.
+Archivos: `anim-boca.html` + `voz-data.js` en `F:\Proyectos\animacion-codigo-a-mp4`.
+
+1. Voz local (SAPI Sabina) → `demo/voz-boca.wav`.
+2. Analizar el WAV a 25 cuadros/s sacando dos curvas: **RMS** (cuánto abre la mandíbula) y **cruces por cero**
+   (cuánto estira los labios: ancho/redondo). Normalizar por percentiles p10-p95 para que un grito no aplaste
+   todo. Salida: `voz-data.js` con `{abertura[], ancho[], fps, duracion}`.
+3. La boca se **dibuja** por cuadro desde esas dos curvas: cerrada = línea curva → ranura → vocal abierta con
+   dientes (cuando abertura > .42) y lengua (> .66), más un jitter senoidal para que no se vea robótico.
+4. **Ojos**: parpadeo cada 1-1.4 s con el párpado **recortado a la forma del ojo** (`clipPath` sobre la elipse);
+   sin recorte se ve un rectángulo pegado. Cejas suben con la derivada de la apertura (énfasis).
+5. Cabeceo leve multiplicado por la apertura — el cuerpo queda quieto, como en la animación limitada real.
+
+Resultado verificado: 7.32 s · 1080x1920 · 183 cuadros · h264 + aac, con corte duro a los 4.2 s que cambia fondo y
+encuadre (prueba de que convive con los movimientos de cámara del pipeline).
+
+**Límite honesto:** el personaje del ejemplo está dibujado en código (SVG). Con caricaturas raster hay que
+retocar la boca original y dibujar la nueva encima; funciona mejor de frente que en escorzo.
 
 ## Entrega
 
